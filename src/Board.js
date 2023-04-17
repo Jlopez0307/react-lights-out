@@ -27,12 +27,13 @@ import "./Board.css";
  *
  **/
 
-const randomTrueFalse = () => Boolean(Math.random() < 0.5);
 
 function Board({ nrows, ncols, chanceLightStartsOn }) {
 
   /** create a board nrows high/ncols wide, each cell randomly lit or unlit */
   const createBoard = (rows, columns) => {
+    let chanceTrue = parseFloat(chanceLightStartsOn);
+    const randomTrueFalse = () => Boolean(Math.random() < 0.25);
     //Initializes new new array
     let initialBoard = [];
     for(let i = 0; i < rows; i++){
@@ -45,6 +46,12 @@ function Board({ nrows, ncols, chanceLightStartsOn }) {
   const [board, setBoard] = useState(createBoard(nrows, ncols));
 
   function hasWon() {
+    const checkBoard = new Set(board)
+    if(checkBoard.size === 1){
+      return true
+    } else {
+      return false
+    }
     // TODO: check the board in state to determine whether the player has won.
   }
 
@@ -61,17 +68,52 @@ function Board({ nrows, ncols, chanceLightStartsOn }) {
       };
 
       // TODO: Make a (deep) copy of the oldBoard
+      const boardCopy = oldBoard.map(row => [...row]);
 
       // TODO: in the copy, flip this cell and the cells around it
+      flipCell( y, x, boardCopy);
+      flipCell( y, x - 1, boardCopy);
+      flipCell( y, x + 1, boardCopy);
+      flipCell( y - 1,x, boardCopy);
+      flipCell( y + 1, x, boardCopy);
 
       // TODO: return the copy
+      return boardCopy
     });
   }
 
   // if the game is won, just show a winning msg & render nothing else
+  console.log(board)
+  // TODO 
 
-  // TODO
-
+  if( hasWon() === true ){
+    return (
+    <div>
+      <p>YOU WON</p>
+    </div>
+    )
+  }else {
+    let tableBoard = [];
+    for(let y = 0; y < nrows; y++){
+      let row = [];
+      for(let x = 0; x < ncols; x++){
+        let coord = `${y}-${x}`;
+        row.push(
+          <Cell
+            key={coord}
+            isLit={board[y][x]}
+            flipCellsAroundMe={evt => flipCellsAround(coord)}
+          />
+        );
+      }
+      tableBoard.push(<tr key={y}>{row}</tr>)
+    }
+    return (
+      <table className="Board">
+        <tbody>{tableBoard}</tbody>
+      </table>
+    )
+  }
   // make table board
 
   // TODO
